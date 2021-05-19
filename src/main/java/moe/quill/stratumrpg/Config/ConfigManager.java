@@ -1,5 +1,6 @@
 package moe.quill.stratumrpg.Config;
 
+import moe.quill.stratumrpg.StratumRPG;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 

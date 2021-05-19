@@ -1,6 +1,5 @@
 package moe.quill.stratumrpg.Scheduler;
 
-import moe.quill.stratumrpg.Database.DatabaseManager;
 import moe.quill.stratumrpg.Players.StratumPlayerManager;
 
 import java.util.concurrent.ScheduledExecutorService;

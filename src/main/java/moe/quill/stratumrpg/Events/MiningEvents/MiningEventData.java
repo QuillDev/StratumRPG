@@ -6,15 +6,9 @@ import org.bukkit.block.Block;
 public class MiningEventData {
 
     private final StratumPlayer player;
-    private final Block block;
 
-    public MiningEventData(StratumPlayer player, Block block) {
+    public MiningEventData(StratumPlayer player) {
         this.player = player;
-        this.block = block;
-    }
-
-    public Block getBlock() {
-        return block;
     }
 
     public StratumPlayer stratumPlayer() {

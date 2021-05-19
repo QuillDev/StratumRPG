@@ -1,4 +1,4 @@
-package moe.quill.stratumrpg.Events.MiningEvents;
+package moe.quill.stratumrpg.Events.MiningEvents.MiningOreEvents;
 
 import moe.quill.stratumrpg.Players.StratumPlayerManager;
 import net.kyori.adventure.text.Component;
@@ -7,12 +7,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 import java.util.Random;
 
-public class MiningDropEvent extends MiningEvent {
+public class MiningOreDropEvent extends MiningOreEvent {
 
 
     private final Random rand = new Random();
 
-    public MiningDropEvent(StratumPlayerManager playerManager) {
+    public MiningOreDropEvent(StratumPlayerManager playerManager) {
         super(playerManager);
     }
 
@@ -39,12 +39,11 @@ public class MiningDropEvent extends MiningEvent {
         });
         mcPlayer.sendMessage(
                 Component.text("Triggered")
-                .append(Component.space())
-                .append(Component.text(multiplier))
-                .append(Component.space())
-                .append(Component.text("x"))
-                .append(Component.space())
-                .append(Component.text("drops!"))
+                        .append(Component.space())
+                        .append(Component.text(multiplier))
+                        .append(Component.text("x"))
+                        .append(Component.space())
+                        .append(Component.text("drops!"))
         );
 
 

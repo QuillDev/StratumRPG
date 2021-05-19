@@ -1,30 +1,39 @@
 package moe.quill.stratumrpg.Events.MiningEvents;
 
 import moe.quill.stratumrpg.Events.ExperienceEvents.ExperienceEvent;
+import moe.quill.stratumrpg.Metadata.BlockMeta;
 import moe.quill.stratumrpg.Players.StratumPlayerManager;
 import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
 
 public class MiningEvent extends ExperienceEvent {
-    public MiningEvent(StratumPlayerManager playerManager) {
-        super(playerManager, new HashMap<>() {{
-            put(Material.STONE, .05f);
-            put(Material.BLACKSTONE, .05f);
-            put(Material.BASALT, .05f);
-            put(Material.REDSTONE_ORE, 1f);
-            put(Material.LAPIS_ORE, 1f);
-            put(Material.NETHER_QUARTZ_ORE, 1f);
-            put(Material.NETHER_GOLD_ORE, 1f);
-            put(Material.GILDED_BLACKSTONE, 1f);
-            put(Material.COAL_ORE, 2f);
-            put(Material.IRON_ORE, 4f);
-            put(Material.GOLD_ORE, 4f);
-            put(Material.DIAMOND_ORE, 8f);
-            put(Material.EMERALD_ORE, 12f);
-            put(Material.ANCIENT_DEBRIS, 25f);
-        }});
+
+    protected HashMap<Material, Float> xpMap;
+    private final Plugin plugin;
+
+    public MiningEvent(StratumPlayerManager playerManager, HashMap<Material, Float> xpMap, Plugin plugin) {
+        super(playerManager, xpMap);
+        this.xpMap = xpMap;
+        this.plugin = plugin;
+    }
+
+    @EventHandler
+    public void tagPlacedBlock(BlockPlaceEvent event) {
+        final var block = event.getBlock();
+        if (!xpMap.containsKey(block.getType())) return;
+        block.setMetadata("placedByPlayer", BlockMeta.blockPlacedMeta);
+    }
+
+    @EventHandler
+    public void untagBrokenBlock(BlockPlaceEvent event) {
+        final var block = event.getBlock();
+        if (!xpMap.containsKey(block.getType())) return;
+        block.removeMetadata("placedByPlayer", plugin);
     }
 
     public MiningEventData getMiningEventData(BlockBreakEvent event) {
@@ -33,6 +42,6 @@ public class MiningEvent extends ExperienceEvent {
         if (stratumPlayer == null) return null;
         final var block = event.getBlock();
         if (block.hasMetadata("placedByPlayer")) return null;
-        return new MiningEventData(stratumPlayer, block);
+        return new MiningEventData(stratumPlayer);
     }
 }
