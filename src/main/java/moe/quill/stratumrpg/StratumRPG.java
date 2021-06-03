@@ -1,45 +1,55 @@
 package moe.quill.stratumrpg;
 
-import moe.quill.stratumrpg.Config.ConfigManager;
-import moe.quill.stratumrpg.Database.DatabaseManager;
-import moe.quill.stratumrpg.Events.HandleStratumPlayerList;
-import moe.quill.stratumrpg.Events.MiningEvents.MiningLogEvents.MiningLogEvent;
-import moe.quill.stratumrpg.Events.MiningEvents.MiningOreEvents.MiningOreDropEvent;
-import moe.quill.stratumrpg.Events.MiningEvents.MiningOreEvents.MiningOreEvent;
-import moe.quill.stratumrpg.Metadata.BlockMeta;
-import moe.quill.stratumrpg.Players.StratumPlayerManager;
-import moe.quill.stratumrpg.Scheduler.StratumScheduler;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import moe.quill.StratumCommon.Plugin.StratumConfigBuilder;
+import moe.quill.StratumCommon.Plugin.StratumPlugin;
+import moe.quill.stratumrpg.DependencyInjection.PluginModule;
+import moe.quill.stratumrpg.Events.PlayerJoinListener;
+import moe.quill.stratumrpg.Events.PlayerQuitListener;
+import moe.quill.stratumrpg.Players.PlayerManager;
 
-public final class StratumRPG extends JavaPlugin {
+@Singleton
+public final class StratumRPG extends StratumPlugin {
 
-    private final ConfigManager configManager = new ConfigManager(this);
-    private final DatabaseManager databaseManager = new DatabaseManager(configManager);
-    private final StratumPlayerManager stratumPlayerManager = new StratumPlayerManager(databaseManager);
-    private final StratumScheduler stratumScheduler = new StratumScheduler(stratumPlayerManager);
+    //Managers
+    @Inject
+    PlayerManager playerManager;
+
+    //Events
+    @Inject
+    PlayerJoinListener playerJoinListener;
+    @Inject
+    PlayerQuitListener playerQuitEvent;
+
+
+    public StratumRPG() {
+        super(
+                new StratumConfigBuilder()
+                        .setUseDatabase(true)
+                        .setUseSerialization(true)
+                        .setUseKeyManager(true)
+                        .build()
+        );
+    }
 
     @Override
     public void onEnable() {
-        BlockMeta.init(this); //Setup block meta values
-        stratumPlayerManager.enable();
-        stratumScheduler.enable();
+        super.onEnable();
+        final var injector = Guice.createInjector(new PluginModule(this));
+        injector.injectMembers(this);
 
-        final var pluginManager = getServer().getPluginManager();
-
-        //Database Events
-        pluginManager.registerEvents(new HandleStratumPlayerList(stratumPlayerManager), this);
-
-        //Mining Events
-        pluginManager.registerEvents(new MiningOreEvent(stratumPlayerManager, this), this);
-        pluginManager.registerEvents(new MiningOreDropEvent(stratumPlayerManager), this);
-
-        pluginManager.registerEvents(new MiningLogEvent(stratumPlayerManager, this), this);
+        registerEvent(playerJoinListener, playerQuitEvent);
     }
 
     @Override
     public void onDisable() {
-        //Disable the player manager
-        stratumPlayerManager.disable();
-        stratumScheduler.disable();
+        super.onDisable();
+        if (playerManager != null) {
+            playerManager.savePlayers();
+            playerManager.clearPlayerCache();
+        }
+
     }
 }
