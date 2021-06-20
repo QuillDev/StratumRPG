@@ -1,5 +1,5 @@
 name: StratumRPG
 version: ${project.version}
 main: moe.quill.stratumrpg.StratumRPG
-api-version: 1.16
+api-version: 1.17
 depend: [StratumCommon]

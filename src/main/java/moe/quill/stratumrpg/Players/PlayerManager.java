@@ -2,8 +2,8 @@ package moe.quill.stratumrpg.Players;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import moe.quill.StratumCommon.Database.DataTypes.RPGPlayer;
-import moe.quill.StratumCommon.Database.IDatabaseService;
+import moe.quill.StratumCommonApi.Database.DataTypes.RPGPlayer;
+import moe.quill.StratumCommonApi.Database.IDatabaseService;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.slf4j.Logger;
@@ -59,7 +59,13 @@ public class PlayerManager {
     public void savePlayer(Player player) {
         final var cachedPlayer = getPlayer(player);
         if (cachedPlayer == null) return;
-        logger.info(String.format("Saving data for player %s | UUID: %s", player.getName(), player.getUniqueId()));
+
+        //If the user has not been previously saved to the database, save a new entry
+        final var existingPlayer = databaseService.getPlayer(player.getUniqueId());
+        if (existingPlayer == null) {
+            logger.info(String.format("Saving data for player %s | UUID: %s", player.getName(), player.getUniqueId()));
+        }
+
         databaseService.savePlayer(getPlayer(player));
     }
 

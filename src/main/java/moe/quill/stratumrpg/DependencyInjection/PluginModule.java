@@ -1,12 +1,11 @@
 package moe.quill.stratumrpg.DependencyInjection;
 
 import com.google.inject.AbstractModule;
-import moe.quill.StratumCommon.Database.IDatabaseService;
-import moe.quill.StratumCommon.KeyManager.IKeyManager;
-import moe.quill.StratumCommon.Serialization.ISerializer;
+import moe.quill.StratumCommonApi.Database.IDatabaseService;
+import moe.quill.StratumCommonApi.KeyManager.IKeyManager;
+import moe.quill.StratumCommonApi.Serialization.ISerializer;
 import moe.quill.stratumrpg.Players.PlayerManager;
 import moe.quill.stratumrpg.StratumRPG;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class PluginModule extends AbstractModule {
