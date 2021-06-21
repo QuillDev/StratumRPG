@@ -15,7 +15,7 @@ import java.util.UUID;
 @Singleton
 public class PlayerManager {
 
-    private HashMap<UUID, RPGPlayer> playerMap = new HashMap<>();
+    private final HashMap<UUID, RPGPlayer> playerMap = new HashMap<>();
     private final IDatabaseService databaseService;
     private static final Logger logger = LoggerFactory.getLogger(PlayerManager.class.getSimpleName());
 

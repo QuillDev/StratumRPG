@@ -1,4 +1,4 @@
-package moe.quill.stratumrpg.Events;
+package moe.quill.stratumrpg.Skills.Experience;
 
 import com.google.inject.Inject;
 import moe.quill.StratumCommonApi.Database.IDatabaseService;

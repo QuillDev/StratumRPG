@@ -1,21 +1,25 @@
-package moe.quill.stratumrpg.Events.ExperienceEvents;
+package moe.quill.stratumrpg.Skills.Experience.Events;
 
 import com.google.inject.Inject;
-import moe.quill.StratumCommonApi.Database.DataTypes.RPGPlayer;
 import moe.quill.StratumCommonApi.Database.IDatabaseService;
-import moe.quill.stratumrpg.Events.RPGListener;
+import moe.quill.stratumrpg.Skills.Experience.ExperienceEventData;
+import moe.quill.stratumrpg.Skills.Experience.RPGListener;
+import moe.quill.stratumrpg.Skills.ExperienceUi.SkillXpBarData;
 import moe.quill.stratumrpg.Players.PlayerManager;
+import moe.quill.stratumrpg.Skills.SkillType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public abstract class RpgExperienceListener extends RPGListener {
 
@@ -26,39 +30,24 @@ public abstract class RpgExperienceListener extends RPGListener {
     private final HashMap<Player, SkillXpBarData> xpBarCache = new HashMap<>();
 
     /**
-     * @param playerManager   to manage rpg players
-     * @param databaseService to use for database storage
-     * @param skillName       name of the skill for presentation purposes
-     * @param difficulty      difficulty modifier that is multiplied at the end of the
-     *                        base experience formula that adds or removes
-     *                        difficulty from this experience curve
-     *                        0-.99 = Easier
-     *                        1+ = Harder
+     * @param plugin          to register scheduled events with
+     * @param playerManager   to manage players with
+     * @param databaseService service for working with the database
+     * @param skillType       to assign this xp modifiers with
      */
     @Inject
     public RpgExperienceListener(
             Plugin plugin,
             PlayerManager playerManager,
             IDatabaseService databaseService,
-            String skillName,
-            float difficulty
+            SkillType skillType
     ) {
         super(playerManager, databaseService);
         this.plugin = plugin;
-        this.skillName = skillName;
-        this.difficulty = difficulty;
+        this.skillName = skillType.getSkillName();
+        this.difficulty = skillType.getDifficulty();
     }
 
-    /**
-     * Create an RPG experience listener with a normal difficulty
-     *
-     * @param playerManager   to access rpg players
-     * @param databaseService to mess with the database
-     * @param skillName       name of the skill for presentation purposes
-     */
-    public RpgExperienceListener(Plugin plugin, PlayerManager playerManager, IDatabaseService databaseService, String skillName) {
-        this(plugin, playerManager, databaseService, skillName, 1);
-    }
 
     /**
      * Show the updated experience bar to the player depending on how much XP they gained
@@ -82,7 +71,8 @@ public abstract class RpgExperienceListener extends RPGListener {
         }
 
         final var max = calculateXpNeeded(level);
-        final var adjustedCur = cur - calculateXpNeeded(level - 1);
+
+        final var adjustedCur = cur - ((level == 1) ? 0 : calculateXpNeeded(level - 1));
         xpBarData.update(adjustedCur, max);
         xpBarData.show();
     }
@@ -113,5 +103,24 @@ public abstract class RpgExperienceListener extends RPGListener {
      */
     public float calculateXpNeeded(int level) {
         return (float) (((500 * level) + Math.pow((level - 1), 2.4f)) * this.difficulty);
+    }
+
+    /**
+     * Get experience event data for the given event
+     *
+     * @param event     to get experience from
+     * @param whitelist to check whether the given block is in
+     * @return the event data for that event
+     */
+    public ExperienceEventData getExperienceEventData(BlockBreakEvent event, HashSet<Material> whitelist) {
+        if (!event.isDropItems()) return null;
+        final var player = event.getPlayer();
+        final var rpgPlayer = playerManager.getPlayer(player);
+        if (rpgPlayer == null) return null; //If there is no RPGPlayer for this player, return
+
+        //Check block eligibility for experience
+        final var broken = event.getBlock();
+        if (!whitelist.contains(broken.getType())) return null; //if it's not eligible, just return out
+        return new ExperienceEventData(player, rpgPlayer, event, event.getBlock(), whitelist);
     }
 }

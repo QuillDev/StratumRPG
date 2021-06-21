@@ -1,6 +1,5 @@
-package moe.quill.stratumrpg.Events.ExperienceEvents;
+package moe.quill.stratumrpg.Skills.ExperienceUi;
 
-import moe.quill.StratumCommonApi.Database.DataTypes.RPGPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
@@ -52,6 +51,7 @@ public class SkillXpBarData {
     }
 
     public void update(float cur, float max) {
+        if (Float.isNaN(cur)) cur = 0; //If it's a nan set cur to 0
         bossBar.setProgress(cur / max);
     }
 }

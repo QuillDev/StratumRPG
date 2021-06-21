@@ -6,9 +6,10 @@ import com.google.inject.Singleton;
 import moe.quill.stratumcommonutils.Plugin.Configuration.StratumConfigBuilder;
 import moe.quill.stratumcommonutils.Plugin.StratumPlugin;
 import moe.quill.stratumrpg.DependencyInjection.PluginModule;
-import moe.quill.stratumrpg.Events.ExperienceEvents.MiningExperienceListener;
-import moe.quill.stratumrpg.Events.PlayerJoinListener;
-import moe.quill.stratumrpg.Events.PlayerQuitListener;
+import moe.quill.stratumrpg.Skills.Experience.Events.LoggingExperienceListener;
+import moe.quill.stratumrpg.Skills.Experience.Events.MiningExperienceListener;
+import moe.quill.stratumrpg.Players.Events.PlayerJoinListener;
+import moe.quill.stratumrpg.Players.Events.PlayerQuitListener;
 import moe.quill.stratumrpg.Players.PlayerManager;
 
 @Singleton
@@ -25,6 +26,8 @@ public final class StratumRPG extends StratumPlugin {
     PlayerQuitListener playerQuitEvent;
     @Inject
     MiningExperienceListener miningExperienceListener;
+    @Inject
+    LoggingExperienceListener loggingExperienceListener;
 
 
     public StratumRPG() {
@@ -43,7 +46,7 @@ public final class StratumRPG extends StratumPlugin {
         final var injector = Guice.createInjector(new PluginModule(this));
         injector.injectMembers(this);
 
-        registerEvent(playerJoinListener, playerQuitEvent, miningExperienceListener);
+        registerEvent(playerJoinListener, playerQuitEvent, miningExperienceListener, loggingExperienceListener);
     }
 
     @Override
